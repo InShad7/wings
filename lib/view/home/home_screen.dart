@@ -21,7 +21,7 @@ class HomeScreen extends StatelessWidget {
       ),
       drawer: const NavigationDrawers(),
       body: FutureBuilder<List<dynamic>>(
-        future: Provider.of<PostProvider>(context).fetchPosts(),
+        future: Provider.of<UserProvider>(context).fetchUser(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(

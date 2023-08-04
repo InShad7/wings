@@ -50,7 +50,7 @@ class NavigationDrawers extends StatelessWidget {
               leading: const Icon(Icons.person_add_alt),
               title: const Text('Create new user'),
               onTap: () {
-                // addPost(context: context);
+                addPost(context: context);
               },
             ),
             kHeight,
