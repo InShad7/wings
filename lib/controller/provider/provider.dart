@@ -27,7 +27,12 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> createPost() async {
+  clearPostController() {
+    titleController.clear();
+    bodyController.clear();
+  }
+  
+  Future<Map<String, dynamic>> createUser() async {
     try {
       final postData = {
         'id': null,
@@ -63,8 +68,4 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  clearPostController() {
-    titleController.clear();
-    bodyController.clear();
-  }
 }

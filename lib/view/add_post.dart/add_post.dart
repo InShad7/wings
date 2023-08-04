@@ -40,7 +40,7 @@ Future addPost({context}) async {
                       onPressed: () {
                         if (postModel.titleController.text.isNotEmpty &&
                             postModel.bodyController.text.isNotEmpty) {
-                          postModel.createPost();
+                          postModel.createUser();
                           Navigator.pop(context);
                           Navigator.pop(context);
                          
