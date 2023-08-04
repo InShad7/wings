@@ -15,42 +15,44 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       key: homeKey,
       backgroundColor: cardClr2,
-      appBar: AppBar(
-        backgroundColor: bgColor,
-        title: const Text('Wings.'),
-      ),
+      appBar: AppBar(backgroundColor: bgColor, title: const Text('Wings.')),
       drawer: const NavigationDrawers(),
-      body: FutureBuilder<List<dynamic>>(
-        future: Provider.of<UserProvider>(context).fetchUser(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: SizedBox(
-                height: 40,
-                width: 40,
-                child: LoadingIndicator(
-                  indicatorType: Indicator.circleStrokeSpin,
-                  colors: [bgColor],
-                  strokeWidth: 2,
-                ),
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.hasData) {
-            final user = snapshot.data;
-            return ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemCount: user!.length,
-              itemBuilder: (context, index) {
-                final post = user[index];
-                return ItemTile(post: post);
-              },
-            );
-          } else {
-            return const Center(child: Text('No data available'));
-          }
+      body: RefreshIndicator(
+        onRefresh: () {
+          return Provider.of<UserProvider>(context, listen: false).fetchUser();
         },
+        child: FutureBuilder<List<dynamic>>(
+          future: Provider.of<UserProvider>(context).fetchUser(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: SizedBox(
+                  height: 40,
+                  width: 40,
+                  child: LoadingIndicator(
+                    indicatorType: Indicator.circleStrokeSpin,
+                    colors: [bgColor],
+                    strokeWidth: 2,
+                  ),
+                ),
+              );
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else if (snapshot.hasData) {
+              final user = snapshot.data;
+              return ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: user!.length,
+                itemBuilder: (context, index) {
+                  final post = user[index];
+                  return ItemTile(post: post);
+                },
+              );
+            } else {
+              return const Center(child: Text('No data available'));
+            }
+          },
+        ),
       ),
     );
   }

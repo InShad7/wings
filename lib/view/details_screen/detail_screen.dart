@@ -19,7 +19,9 @@ class DetailScreen extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 60,
-              backgroundImage: NetworkImage(post['avatar']),
+              backgroundImage: post['avatar'] != null
+                  ? NetworkImage(post['avatar'])
+                  : const AssetImage('assets/dp.jpg') as ImageProvider,
             ),
             Text(
               " ${post['name']}",

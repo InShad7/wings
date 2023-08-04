@@ -4,9 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:wings/controller/provider/provider.dart';
 import 'package:wings/view/splash_screen.dart/spalsh_screen.dart';
 
+import 'controller/db/db_fun.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await initDataBase();
   runApp(const MyApp());
 }
 

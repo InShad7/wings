@@ -26,7 +26,9 @@ class ItemTile extends StatelessWidget {
           leading: CircleAvatar(
             backgroundColor: white,
             radius: 25,
-            backgroundImage: NetworkImage(post['avatar']),
+            backgroundImage: post['avatar'] != null
+                ? NetworkImage(post['avatar'])
+                : const AssetImage('assets/dp.jpg') as ImageProvider,
           ),
           title: Text(
             post['name'],
