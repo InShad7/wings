@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:wings/main.dart';
 import '/controller/controller.dart';
@@ -76,15 +78,28 @@ class LoginBtn extends StatelessWidget {
     );
 
     try {
+      final connectivityResult =
+          await InternetConnectionChecker().connectionStatus;
+      if (connectivityResult == InternetConnectionStatus.disconnected) {
+        Fluttertoast.showToast(
+          msg: 'Oops..! Please turn on mobile data or wifi.',
+          backgroundColor: deleteRed,
+        );
+        Navigator.pop(context);
+        return; // return  null to indicate nothing to do
+      }
       if (signup) {
+        //sign up with username and password
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: userNameController.text.trim(),
           password: passwordController.text.trim(),
         );
-
+        //update the user name
         final currentUser = FirebaseAuth.instance.currentUser;
         await currentUser!.updateDisplayName(nameController.text.trim());
       } else {
+
+        //or login in with username and password
         await FirebaseAuth.instance.signInWithEmailAndPassword(
             email: userNameController.text.trim(),
             password: passwordController.text.trim());

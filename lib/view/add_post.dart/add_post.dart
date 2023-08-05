@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:wings/controller/provider/provider.dart';
 import '../utils/utils.dart';
@@ -42,8 +41,7 @@ Future addPost({context}) async {
                             postModel.bodyController.text.isNotEmpty) {
                           postModel.createUser();
                           Navigator.pop(context);
-                          Navigator.pop(context);
-                         
+                          // Navigator.pop(context);
                         } else {
                           Fluttertoast.showToast(msg: 'Enter valid data');
                         }

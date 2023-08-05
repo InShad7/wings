@@ -1,17 +1,17 @@
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:wings/controller/db/db_fun.dart';
+import 'package:wings/view/utils/utils.dart';
 
 class UserProvider extends ChangeNotifier {
   TextEditingController titleController = TextEditingController();
   TextEditingController bodyController = TextEditingController();
 
-
-//fetch user from api
-  Future<List<dynamic>> fetchUser() async {
+  Future<List<dynamic>> fetchUser({refresh = false}) async {
     try {
       final response = await http
           .get(Uri.parse('https://64ccfcf4bb31a268409a37b0.mockapi.io/user'));
@@ -19,6 +19,9 @@ class UserProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final users = json.decode(response.body);
         await saveUserToLocal(users); // save fetched data to local storage
+        if (refresh) {
+          notifyListeners(); // ui update after refreshing
+        }
         return users; // return fetched data
       } else {
         Fluttertoast.showToast(
@@ -27,17 +30,23 @@ class UserProvider extends ChangeNotifier {
             'Failed to fetch posts. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching data from API: $e');
+      if (e is SocketException) {
+        // print('Failed host lookup error: $e');
 
-      // load data from local storage
-      final _db = await db;
-      final List<Map<String, dynamic>> localUsers = await _db.query('user');
-      // await _db.close();
+        // load data from local storage
+        final _db = await db;
+        final List<Map<String, dynamic>> localUsers = await _db.query('user');
+        // await _db.close();
 
-      if (localUsers.isNotEmpty) {
-        return localUsers;
+        if (localUsers.isNotEmpty) {
+          return localUsers;
+        } else {
+          Fluttertoast.showToast(
+              msg: 'Failed to fetch posts. Status code: Failed host lookup');
+          throw Exception('Failed to fetch posts. Error: Failed host lookup');
+        }
       } else {
-        Fluttertoast.showToast(msg: 'Failed to fetch posts. Status code: ${e}');
+        // print('Error fetching data from API: $e');
         throw Exception('Failed to fetch posts. Error: $e');
       }
     }
@@ -49,11 +58,19 @@ class UserProvider extends ChangeNotifier {
     bodyController.clear();
   }
 
-
-//create  a new user
+  //create a new user
   Future<Map<String, dynamic>> createUser() async {
     try {
-      //data for new user
+      final connectivityResult =
+          await InternetConnectionChecker().connectionStatus;
+      if (connectivityResult == InternetConnectionStatus.disconnected) {
+        Fluttertoast.showToast(
+          msg: 'Oops..! Please turn on mobile data or wifi.',
+          backgroundColor: deleteRed,
+        );
+        return {}; // return an empty map or null to indicate no user was created
+      }
+      //data to post
       final postData = {
         'id': null,
         'name': titleController.text,
@@ -70,20 +87,20 @@ class UserProvider extends ChangeNotifier {
       if (response.statusCode == 201) {
         final createdPost = json.decode(response.body);
         notifyListeners();
-        Fluttertoast.showToast(msg: 'user created successfully');
+        Fluttertoast.showToast(msg: 'User created successfully');
         clearPostController();
-        print('Post created successfully: $createdPost');
+        // print('User created successfully: $createdPost');
         return createdPost;
       } else {
         Fluttertoast.showToast(
-            msg: 'Failed to create post. Status code: ${response.statusCode}');
-
+            msg: 'Failed to create user. Status code: ${response.statusCode}');
         throw Exception(
-            'Failed to create post. Status code: ${response.statusCode}');
+            'Failed to create user. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error creating post: $e');
-      throw Exception('Failed to create post.');
+      // print('Error creating user: $e');
+      Fluttertoast.showToast(msg: 'Failed to create user.');
+      throw Exception('Failed to create user.');
     }
   }
 
@@ -109,4 +126,17 @@ class UserProvider extends ChangeNotifier {
       print('Error saving data to local storage: $e');
     }
   }
+}
+
+class ConnectivityProvider with ChangeNotifier {
+  bool _hasInternet = false;
+
+  ConnectivityProvider() {
+    InternetConnectionChecker().onStatusChange.listen((status) {
+      _hasInternet = status == InternetConnectionStatus.connected;
+      notifyListeners();
+    });
+  }
+
+  bool get hasInternet => _hasInternet;
 }

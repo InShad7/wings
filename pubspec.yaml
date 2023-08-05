@@ -35,9 +35,10 @@ dependencies:
     sdk: flutter
   fluttertoast: ^8.2.2
   http: null
+  internet_connection_checker: ^1.0.0+1
   loading_indicator: ^3.1.1
   provider: ^6.0.5
-  sqflite: 
+  sqflite: null
 
 dev_dependencies:
   flutter_lints: ^2.0.0

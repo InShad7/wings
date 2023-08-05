@@ -10,7 +10,7 @@ Future<void> initDataBase() async {
 //open the database or creating a new one
 Future<Database> _openDatabase() async {
   final dbPath = await getDatabasesPath();
-  final path = join(dbPath, 'fit.db');
+  final path = join(dbPath, 'user.db');
 
   return await openDatabase(
     path,
